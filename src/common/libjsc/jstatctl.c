@@ -1030,8 +1030,10 @@ static void job_state_cb (flux_t *h, flux_msg_handler_t *w,
     if (strcmp (state, jsc_job_num2state (J_RESERVED)) == 0)
         fixup_newjob_event (h, jobid);
 
-    if (invoke_cbs (h, jobid, get_update_jcb (h, jobid, state), 0) < 0)
+    json_object *jcb = get_update_jcb (h, jobid, state);
+    if (invoke_cbs (h, jobid, jcb, 0) < 0)
         flux_log (h, LOG_ERR, "job_state_cb: failed to invoke callbacks");
+    Jput (jcb);
 
     if (job_is_finished (state))
         delete_jobinfo (h, jobid);
